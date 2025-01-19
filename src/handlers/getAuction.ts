@@ -1,4 +1,3 @@
-import { v4 as uuid } from "uuid";
 import { DynamoDB } from "aws-sdk";
 import middy from "@middy/core";
 import httpJsonBodyParser from "@middy/http-json-body-parser";
@@ -20,38 +19,37 @@ interface TypedAPIGatewayProxyEvent extends Omit<APIGatewayProxyEvent, "body"> {
   body: CreateAuctionBody;
 }
 
-const createAuction = async (
+const getAuction = async (
   event: TypedAPIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
-  const { title } = event.body;
-  const now = new Date();
-
-  const auction: Auction = {
-    id: uuid(),
-    title,
-    status: "OPEN",
-    createdAt: now.toISOString(),
-  };
+  let auction: Auction;
+  const { id } = event.pathParameters || {};
 
   try {
-    await dynamoDB
-      .put({
-        TableName: process.env.AUCTIONS_TABLE_NAME!,
-        Item: auction,
+    const result = await dynamoDB
+      .get({
+        TableName: process.env.AUCTIONS_TABLE_NAME as string,
+        Key: { id },
       })
       .promise();
+
+    auction = result.Item as Auction;
   } catch (error) {
     console.error(error);
-    throw new createError.InternalServerError((error as Error).message);
+    throw new createError.InternalServerError(error);
+  }
+
+  if (!auction) {
+    throw new createError.NotFound(`Auction with ID "${id}" not found.`);
   }
 
   return {
-    statusCode: 201,
+    statusCode: 200,
     body: JSON.stringify(auction),
   };
 };
 
-export const handler = middy(createAuction)
+export const handler = middy(getAuction)
   .use(httpJsonBodyParser())
   .use(httpEventNormalizer())
   .use(httpErrorHandler());
