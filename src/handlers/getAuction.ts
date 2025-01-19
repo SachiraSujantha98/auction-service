@@ -16,12 +16,8 @@ interface TypedAPIGatewayProxyEvent extends Omit<APIGatewayProxyEvent, "body"> {
   body: CreateAuctionBody;
 }
 
-const getAuction = async (
-  event: TypedAPIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+export async function getAuctionById(id: string) {
   let auction: Auction;
-  const { id } = event.pathParameters || {};
-
   try {
     const result = await dynamoDB
       .get({
@@ -39,6 +35,18 @@ const getAuction = async (
   if (!auction) {
     throw new createError.NotFound(`Auction with ID "${id}" not found.`);
   }
+
+  return auction;
+}
+
+const getAuction = async (
+  event: TypedAPIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
+  const { id } = event.pathParameters || {};
+  if (!id) {
+    throw new createError.BadRequest("ID is required");
+  }
+  const auction = await getAuctionById(id);
 
   return {
     statusCode: 200,
