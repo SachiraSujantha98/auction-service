@@ -1,7 +1,18 @@
 service: auction-service
 
 plugins:
+  - serverless-webpack
   - serverless-pseudo-parameters
+
+custom:
+  AuctionsTable:
+    name: !Ref AuctionsTable
+    arn: !GetAtt AuctionsTable.Arn
+  webpack:
+    webpackConfig: webpack.config.js
+    includeModules: true
+    packager: 'npm'
+    excludeFiles: src/**/*.test.ts      
 
 provider:
   name: aws
@@ -53,7 +64,3 @@ functions:
     # events:
     #   - schedule: rate(1 minute)
 
-custom:
-  AuctionsTable:
-    name: !Ref AuctionsTable
-    arn: !GetAtt AuctionsTable.Arn

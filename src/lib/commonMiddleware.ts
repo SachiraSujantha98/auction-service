@@ -1,11 +1,12 @@
-import middy from "@middy/core";
-import httpJsonBodyParser from "@middy/http-json-body-parser";
-import httpEventNormalizer from "@middy/http-event-normalizer";
-import httpErrorHandler from "@middy/http-error-handler";
+import { Handler } from 'aws-lambda';
+import middy from '@middy/core';
+import httpJsonBodyParser from '@middy/http-json-body-parser';
+import httpEventNormalizer from '@middy/http-event-normalizer';
+import httpErrorHandler from '@middy/http-error-handler';
 
-export default (handler) =>
-  middy(handler).use([
-    httpJsonBodyParser(),
-    httpEventNormalizer(),
-    httpErrorHandler(),
-  ]);
+export default function commonMiddleware<T extends Handler>(handler: T) {
+  return middy(handler)
+    .use(httpJsonBodyParser())
+    .use(httpEventNormalizer())
+    .use(httpErrorHandler());
+}

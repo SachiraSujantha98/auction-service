@@ -1,50 +1,41 @@
-import { DynamoDB } from "aws-sdk";
-import commonMiddleware from "../lib/commonMiddleware";
-import createError from "http-errors";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { DynamoDB } from "aws-sdk";
+import createError from "http-errors";
+import commonMiddleware from "../lib/commonMiddleware";
 import { Auction } from "../types/auction";
 
 const dynamoDB = new DynamoDB.DocumentClient();
 
-// request body
-interface CreateAuctionBody {
-  title: string;
-}
+export async function getAuctionById(id: string): Promise<Auction> {
+  let auction;
 
-// Extend the API Gateway event type to include our typed body
-interface TypedAPIGatewayProxyEvent extends Omit<APIGatewayProxyEvent, "body"> {
-  body: CreateAuctionBody;
-}
-
-export async function getAuctionById(id: string) {
-  let auction: Auction;
   try {
     const result = await dynamoDB
       .get({
-        TableName: process.env.AUCTIONS_TABLE_NAME as string,
+        TableName: process.env.AUCTIONS_TABLE_NAME!,
         Key: { id },
       })
       .promise();
 
-    auction = result.Item as Auction;
+    auction = result.Item;
   } catch (error) {
     console.error(error);
-    throw new createError.InternalServerError(error);
+    throw new createError.InternalServerError((error as Error).message);
   }
 
   if (!auction) {
-    throw new createError.NotFound(`Auction with ID "${id}" not found.`);
+    throw new createError.NotFound(`Auction with ID "${id}" not found!`);
   }
 
   return auction;
 }
 
 const getAuction = async (
-  event: TypedAPIGatewayProxyEvent
+  event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
-  const { id } = event.pathParameters || {};
+  const { id } = event.pathParameters ?? {};
   if (!id) {
-    throw new createError.BadRequest("ID is required");
+    throw new createError.BadRequest('Missing id parameter');
   }
   const auction = await getAuctionById(id);
 

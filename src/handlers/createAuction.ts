@@ -7,12 +7,10 @@ import commonMiddleware from "../lib/commonMiddleware";
 
 const dynamoDB = new DynamoDB.DocumentClient();
 
-// request body
 interface CreateAuctionBody {
   title: string;
 }
 
-// Extend the API Gateway event type to include our typed body
 interface TypedAPIGatewayProxyEvent extends Omit<APIGatewayProxyEvent, "body"> {
   body: CreateAuctionBody;
 }
