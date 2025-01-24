@@ -7,6 +7,8 @@
   "scripts": {
     "deploy": "serverless deploy --verbose",
     "deploy:prod": "serverless deploy --stage prod",
+    "deploy:function": "serverless deploy function",
+    "invoke": "serverless invoke -f",
     "build": "webpack",
     "remove": "serverless remove --verbose",
     "remove:prod": "serverless remove --stage prod --verbose"
@@ -16,6 +18,7 @@
     "@middy/http-error-handler": "^4.6.0",
     "@middy/http-event-normalizer": "^4.6.0",
     "@middy/http-json-body-parser": "^4.6.0",
+    "@middy/validator": "^6.0.0",
     "auction-service": "file:",
     "aws-sdk": "^2.1534.0",
     "http-errors": "^2.0.0",

@@ -2,6 +2,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
 import createError from "http-errors";
 import commonMiddleware from "../lib/commonMiddleware";
+import validator from "@middy/validator";
+import getAuctionsSchema from "../lib/schemas/getAuctionsSchema";
 
 const dynamoDB = new DynamoDB.DocumentClient();
 
@@ -9,13 +11,22 @@ const getAuctions = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   let auctions;
+  const { status } = event.queryStringParameters ?? {};
+
+  const params = {
+    TableName: process.env.AUCTIONS_TABLE_NAME!,
+    IndexName: "statusAndEndDate",
+    KeyConditionExpression: "#status = :status",
+    ExpressionAttributeValues: {
+      ":status": status,
+    },
+    ExpressionAttributeNames: {
+      "#status": "status",
+    },
+  };
 
   try {
-    const result = await dynamoDB
-      .scan({
-        TableName: process.env.AUCTIONS_TABLE_NAME!,
-      })
-      .promise();
+    const result = await dynamoDB.query(params).promise();
 
     auctions = result.Items;
   } catch (error) {
@@ -29,4 +40,4 @@ const getAuctions = async (
   };
 };
 
-export const handler = commonMiddleware(getAuctions);
+export const handler = commonMiddleware(getAuctions).use(validator({ eventSchema: getAuctionsSchema }));
