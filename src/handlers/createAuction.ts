@@ -4,6 +4,9 @@ import createError from "http-errors";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { Auction } from "../types/auction";
 import commonMiddleware from "../lib/commonMiddleware";
+import validator from "@middy/validator";
+import createAuctionSchema from "../lib/schemas/createAuctionSchema";
+import { transpileSchema } from "@middy/validator/transpile";
 
 const dynamoDB = new DynamoDB.DocumentClient();
 
@@ -52,4 +55,8 @@ const createAuction = async (
   };
 };
 
-export const handler = commonMiddleware(createAuction);
+export const handler = commonMiddleware(createAuction).use(
+  validator({
+    eventSchema: transpileSchema(createAuctionSchema)
+  })
+);
