@@ -8,7 +8,6 @@ A serverless auction service built with AWS Lambda and the Serverless Framework.
 - Get auctions
 - Place bids on auctions
 - Close auctions automatically
-- Email notifications for auction participants (TODO)
 
 ## Setup
 
