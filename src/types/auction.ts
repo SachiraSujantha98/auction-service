@@ -6,5 +6,7 @@ export interface Auction {
   endingAt: string;
   highestBid: {
     amount: number;
+    bidder: string;
   };
+  seller: string;
 }

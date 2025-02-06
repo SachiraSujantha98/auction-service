@@ -16,12 +16,18 @@ interface CreateAuctionBody {
 
 interface TypedAPIGatewayProxyEvent extends Omit<APIGatewayProxyEvent, "body"> {
   body: CreateAuctionBody;
+  requestContext: {
+    authorizer: {
+      email: string;
+    };
+  } & APIGatewayProxyEvent['requestContext'];
 }
 
 const createAuction = async (
   event: TypedAPIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   const { title } = event.body;
+  const { email } = event.requestContext.authorizer;
   const now = new Date();
   const endDate = new Date();
   endDate.setMinutes(now.getMinutes() + 1);
@@ -35,6 +41,7 @@ const createAuction = async (
     highestBid: {
       amount: 0,
     },
+    seller: email,
   };
 
   try {
