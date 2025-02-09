@@ -8,7 +8,7 @@
     "deploy": "serverless deploy --verbose",
     "deploy:prod": "serverless deploy --stage prod",
     "deploy:function": "serverless deploy function",
-    "invoke": "serverless invoke -f",
+    "invoke": "serverless invoke -f processAuctions",
     "build": "webpack",
     "remove": "serverless remove --verbose",
     "remove:prod": "serverless remove --stage prod --verbose"

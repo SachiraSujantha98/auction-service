@@ -40,6 +40,7 @@ const createAuction = async (
     endingAt: endDate.toISOString(),
     highestBid: {
       amount: 0,
+      bidder: '',
     },
     seller: email,
   };

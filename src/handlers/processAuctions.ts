@@ -20,4 +20,4 @@ const processAuctions = async () => {
   }
 };
 
-export const handler = commonMiddleware(processAuctions);
+export const handler = commonMiddleware(processAuctions, false);
