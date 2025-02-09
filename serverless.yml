@@ -13,7 +13,7 @@ custom:
     arn: ${cf:notification-service-${self:provider.stage}.MailQueueArn}
     url: ${cf:notification-service-${self:provider.stage}.MailQueueUrl}
   AuctionsBucket:
-    name: auctions-bucket-sachira2061-${self:provider.stage}
+    name: auctions-bucket-gsd6g5416sh-${self:provider.stage}
   webpack:
     webpackConfig: webpack.config.js
     includeModules: true

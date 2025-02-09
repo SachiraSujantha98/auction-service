@@ -2,6 +2,11 @@ AuctionsBucket:
   Type: AWS::S3::Bucket
   Properties:
     BucketName: ${self:custom.AuctionsBucket.name}
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: false
+      BlockPublicPolicy: false
+      IgnorePublicAcls: false
+      RestrictPublicBuckets: false
 
 AuctionsBucketPolicy:
   Type: AWS::S3::BucketPolicy
@@ -11,7 +16,8 @@ AuctionsBucketPolicy:
       Statement:
         - Sid: PublicRead
           Effect: Allow
-          Principal: '*'
+          Principal: 
+            AWS: !GetAtt IamRoleLambdaExecution.Arn
           Action:
             - s3:GetObject
           Resource: arn:aws:s3:::${self:custom.AuctionsBucket.name}/*
