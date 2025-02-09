@@ -4,14 +4,9 @@ import httpJsonBodyParser from '@middy/http-json-body-parser';
 import httpEventNormalizer from '@middy/http-event-normalizer';
 import httpErrorHandler from '@middy/http-error-handler';
 
-export default function commonMiddleware<T extends Handler>(handler: T, isHttpEvent: boolean = true) {
-  const middleware = middy(handler)
+export default function commonMiddleware<T extends Handler>(handler: T) {
+  return middy(handler)
     .use(httpJsonBodyParser())
+    .use(httpEventNormalizer())
     .use(httpErrorHandler());
-
-  if (isHttpEvent) {
-    middleware.use(httpEventNormalizer());
-  }
-
-  return middleware;
 }
