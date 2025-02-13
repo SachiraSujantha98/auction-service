@@ -5,7 +5,7 @@ import httpEventNormalizer from '@middy/http-event-normalizer';
 import httpErrorHandler from '@middy/http-error-handler';
 import cors from '@middy/http-cors';
 
-export const commonMiddleware = <T extends Handler>(handler: T) =>
+export default (handler: Handler) =>
   middy(handler).use([
     httpJsonBodyParser(),
     httpEventNormalizer(),
