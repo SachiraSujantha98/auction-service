@@ -1,0 +1,233 @@
+openapi: 3.0.0
+info:
+  title: Auction Service API
+  description: API documentation for the Serverless Auction Service
+  version: 1.0.0
+servers:
+  - url: https://[replace-here].execute-api.us-east-1.amazonaws.com/dev
+    description: Development server
+
+components:
+  schemas:
+    Auction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        status:
+          type: string
+          enum: [OPEN, CLOSED]
+        createdAt:
+          type: string
+          format: date-time
+        endingAt:
+          type: string
+          format: date-time
+        highestBid:
+          type: object
+          properties:
+            amount:
+              type: number
+            bidder:
+              type: string
+        seller:
+          type: string
+    
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+
+  securitySchemes:
+    authorizer:
+      type: apiKey
+      name: Authorization
+      in: header
+
+security:
+  - authorizer: []
+
+paths:
+  /auctions:
+    post:
+      summary: Create a new auction
+      tags:
+        - Auctions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+      responses:
+        '201':
+          description: Auction created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Auction'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    get:
+      summary: Get all auctions
+      tags:
+        - Auctions
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [OPEN, CLOSED]
+          description: Filter auctions by status
+      responses:
+        '200':
+          description: List of auctions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Auction'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auctions/{id}:
+    get:
+      summary: Get a specific auction
+      tags:
+        - Auctions
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The auction ID
+      responses:
+        '200':
+          description: Auction details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Auction'
+        '404':
+          description: Auction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auctions/{id}/bid:
+    patch:
+      summary: Place a bid on an auction
+      tags:
+        - Bids
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The auction ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+              properties:
+                amount:
+                  type: number
+      responses:
+        '200':
+          description: Bid placed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Auction'
+        '400':
+          description: Invalid bid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Auction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auctions/{id}/picture:
+    patch:
+      summary: Upload an auction picture
+      tags:
+        - Pictures
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The auction ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                picture:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Picture uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pictureUrl:
+                    type: string
+        '400':
+          description: Invalid file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Auction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
